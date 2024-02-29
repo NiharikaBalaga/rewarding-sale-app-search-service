@@ -9,6 +9,7 @@ import express, { json } from 'express';
 import { routes } from './routes';
 import * as mongoose from 'mongoose';
 import fs from 'fs';
+import { SQSService } from './services/SQS';
 import passport from './strategies/passport-strategy';
 
 async function bootstrap() {
@@ -21,7 +22,11 @@ async function bootstrap() {
     'MONGODB_URI_SEARCH',
     'MONGO_SEARCH_DATABASE',
     'JWT_ACCESS_SECRET',
-  ];
+    'aws_sqs_access_key_id',
+    'aws_sqs_secret_access_key',
+    'aws_region',
+    'aws_sqs_queue_name',
+    'aws_sqs_queue_url'];
 
   const missingVariables = requiredEnvVariables.filter(variable => {
     return !process.env[variable];
@@ -50,8 +55,10 @@ async function bootstrap() {
 
     console.log('Connected to Mongodb successfully');
     app.listen(PORT, async () => {
-      console.log(`Search Service Started and Listening on PORT ${PORT} `);
+      console.log(`Server Started and Listening on PORT ${PORT} `);
     });
+    // Start SQS Polling
+    SQSService.initPoling();
   } catch (err) {
     console.log('Error in starting the server', err);
   }

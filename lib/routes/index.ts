@@ -1,14 +1,10 @@
 import express from 'express';
-
+ import { searchController } from '../controller';
 const router = express.Router();
+router.get('/hello', (req, res) => {
+  res.send({ message: 'Hello=world' });
+});
 
-
-function getRouter() {
-  router.get('/hello', (req, res) => {
-    res.send({ message: 'Hello from search' });
-  });
-
-  return router;
-}
-
-export const routes = getRouter();
+//router.get('/', searchController.searchPost);
+ router.get('/search', searchController);
+export const routes = router;

@@ -1,5 +1,5 @@
-import PostDLLModel, { IPostDLL } from '../DB/Models/Post-DLL';
-import type { IPost } from '../DB/Models/Post';
+import type { IPostDLL } from '../DB/Models/Post-DLL';
+import PostDLLModel from '../DB/Models/Post-DLL';
 import type mongoose from 'mongoose';
 
 class PostDLLService {

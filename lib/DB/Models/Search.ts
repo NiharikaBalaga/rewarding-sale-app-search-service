@@ -1,9 +1,8 @@
 import { IPost } from "./Post";
 
-export interface SearchResult extends IPost{
-    // Define the structure of your search result here
+export interface SearchResult extends IPost {
     productName: string;
-    productDescription : string;
+    productDescription: string;
     oldPrice: number;
     newPrice: number;
     oldQuantity: number;

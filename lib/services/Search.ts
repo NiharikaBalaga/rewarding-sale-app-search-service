@@ -1,50 +1,46 @@
-import { Client } from '@elastic/elasticsearch';
-// import { SearchResult } from '../DB/Models/Search';// Adjust the path as per your directory structure
+import { SearchResult } from "../DB/Models/Search";
+import type { IPost } from '../DB/Models/Post';
+import PostModel from '../DB/Models/Post';
 
-// Initialize Elasticsearch client
-const esClient = new Client({ node: 'http://localhost:3001' });
-export async function searchService(query: string) {
+export async function searchPosts(query: string): Promise<SearchResult[]> {
     try {
-        // Define search parameters
-        const params = {
-            index: 'posts', 
-            body: {
-                query: {
-                    multi_match: {
-                        query: query,
-                        fields: ["productName", "productDescription", "oldPrice", "newPrice", "oldQuantity", "newQuantity"]
-                    }
-                }
-            }
-        };
+        // Initialize an empty array to hold the search conditions
+        const searchConditions: any[] = [];
 
-        // Perform the search query
-        // const { body } = await esClient.search(params);
-        await esClient.search(params).then(function (resp) {
-            var hits = resp.hits.hits;
-          }, function (err) {
-            console.trace(err.message);
-          });
+        // Check if the query is numeric
+        const parsedQuery = parseFloat(query);
+        const isNumeric = !isNaN(parsedQuery);
 
-        // Extract and format the search results
-        // if (body.hits.total.value > 0) {
-        //     return body.hits.hits.map(hit => hit._source);
-        // } else {
-        //     return [];
-        // }
+        // If the query is numeric, search for exact matches of old price, new price, old quantity, and new quantity
+        if (isNumeric) {
+            searchConditions.push(
+                { oldPrice: parsedQuery },
+                { newPrice: parsedQuery },
+                { oldQuantity: parsedQuery },
+                { newQuantity: parsedQuery }
+            );
+        }
+
+        // Check if the query contains a dot (.) to search for decimal part of the price
+        const dotIndex = query.indexOf('.');
+        if (dotIndex !== -1) {
+            // If dot exists, extract the decimal part of the price
+            const decimalPart = parseInt(query.substring(dotIndex + 1));
+            searchConditions.push({ newPrice: decimalPart });
+        }
+
+        // Add conditions for productName and productDescription
+        searchConditions.push(
+            { productName: { $regex: query, $options: 'i' } }, // Case-insensitive search for product name
+            { productDescription: { $regex: query, $options: 'i' } } // Case-insensitive search for product description
+        );
+
+        // Perform the search query in the Post collection
+        const searchResults: IPost[] = await PostModel.find({ $or: searchConditions }).exec();
+
+        return searchResults;
     } catch (error) {
         console.error('Error searching posts:', error);
-        throw error;
+        throw error; // Rethrow the error to be handled by the caller
     }
 }
-
-// Example usage:
-(async () => {
-    try {
-        const query = 'example'; // Specify the search query
-        const searchResults = await searchService(query);
-        console.log('Search results:', searchResults);
-    } catch (error) {
-        console.error('Error:', error);
-    }
-})();

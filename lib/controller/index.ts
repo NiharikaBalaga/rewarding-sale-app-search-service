@@ -1,14 +1,24 @@
-import { Request, Response, NextFunction } from 'express';
-import { searchService } from '../services/Search';
-//import { SearchResult } from '../DB/Models/Search';
+import { Request, Response } from 'express';
+import { searchPosts } from '../services/Search';
 
-export const searchController = async (req: Request, res: Response) => {
+export async function searchPost(req: Request, res: Response): Promise<void> {
     try {
-      const query = req.query.q as string; // Assuming the search query is provided as a query parameter 'q'
-      const searchResults = await searchService(query);
-      res.status(200).json(searchResults);
+        // Extract the search query from the request parameters
+        const query: string = req.query.q as string;
+
+        // Check if the query parameter is provided
+        if (!query) {
+            res.status(400).json({ error: 'Search query parameter "q" is required' });
+            return;
+        }
+
+        // Call the search service to retrieve search results
+        const searchResults = await searchPosts(query);
+
+        // Send the search results as a response
+        res.status(200).json(searchResults);
     } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error searching posts:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-  };
+}

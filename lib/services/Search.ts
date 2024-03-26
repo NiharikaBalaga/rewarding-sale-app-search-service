@@ -35,8 +35,9 @@ export async function searchPosts(query: string): Promise<SearchResult[]> {
             { productDescription: { $regex: query, $options: 'i' } } // Case-insensitive search for product description
         );
 
-        // Perform the search query in the Post collection
-        const searchResults: IPost[] = await PostModel.find({ $or: searchConditions }).exec();
+
+       // Perform the search query in the Post collection
+       const searchResults: IPost[] = await PostModel.find({ $or: searchConditions }).exec();
 
         return searchResults;
     } catch (error) {
@@ -44,3 +45,4 @@ export async function searchPosts(query: string): Promise<SearchResult[]> {
         throw error; // Rethrow the error to be handled by the caller
     }
 }
+

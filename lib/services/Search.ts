@@ -35,11 +35,15 @@ export async function searchPosts(query: string): Promise<SearchResult[]> {
             { productDescription: { $regex: query, $options: 'i' } } // Case-insensitive search for product description
         );
 
-
        // Perform the search query in the Post collection
        const searchResults: IPost[] = await PostModel.find({ $or: searchConditions }).exec();
 
-        return searchResults;
+       if (searchResults.length === 0) {
+           console.log('No Results Found');
+           return []; // Return an empty array to indicate no results found
+       } else {
+           return searchResults;
+       }
     } catch (error) {
         console.error('Error searching posts:', error);
         throw error; // Rethrow the error to be handled by the caller

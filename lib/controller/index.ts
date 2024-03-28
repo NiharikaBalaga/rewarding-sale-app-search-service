@@ -15,6 +15,12 @@ export async function searchPost(req: Request, res: Response): Promise<void> {
         // Call the search service to retrieve search results
         const searchResults = await searchPosts(query);
 
+        // Check if searchResults is empty
+        if (searchResults.length === 0) {
+            res.status(404).json({ message: 'No results found for the query' });
+            return;
+        }
+
         // Send the search results as a response
         res.status(200).json(searchResults);
     } catch (error) {

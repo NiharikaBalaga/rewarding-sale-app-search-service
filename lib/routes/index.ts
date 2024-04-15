@@ -1,7 +1,8 @@
 import express from 'express';
-import { searchPost } from '../controller';
+import { SearchController } from '../controller';
 import passport from '../strategies/passport-strategy';
 import { isBlocked, tokenBlacklist } from '../middleware';
+import { searchQuery, validateErrors } from './RequestValidations';
 
 const router = express.Router();
 
@@ -12,8 +13,9 @@ function getRouter() {
   });
 
 
-  router.get('', [passport.authenticate('jwt-access', { session: false }), isBlocked, tokenBlacklist, searchPost]);
-  
+  router.get('', [passport.authenticate('jwt-access', { session: false }),
+    isBlocked, tokenBlacklist, searchQuery(), validateErrors, SearchController.searchPost]);
+
   return router;
 }
 

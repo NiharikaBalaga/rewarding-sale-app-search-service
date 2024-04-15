@@ -194,6 +194,11 @@ PostSchema.post('findOne',  function(doc, next) {
   next();
 });
 
+PostSchema.index({
+  productName: 'text',
+  productDescription: 'text'
+});
+
 const PostModel: Model<IPost> = mongoose.model<IPost>('Post', PostSchema);
 
 export default PostModel;

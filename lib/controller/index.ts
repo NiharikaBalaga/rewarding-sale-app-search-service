@@ -1,30 +1,24 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { searchPosts } from '../services/Search';
 
-export async function searchPost(req: Request, res: Response): Promise<void> {
+class SearchController {
+  public static async searchPost(req: Request, res: Response){
     try {
-        // Extract the search query from the request parameters
-        const query: string = req.query.q as string;
+      const { matchedData: { q: query } } = req.body;
 
-        // Check if the query parameter is provided
-        if (!query) {
-            res.status(400).json({ error: 'Search query parameter "q" is required' });
-            return;
-        }
+      console.log('search-query');
 
-        // Call the search service to retrieve search results
-        const searchResults = await searchPosts(query);
+      // Call the search service to retrieve search results
+      const searchResults = await searchPosts(query);
 
-        // Check if searchResults is empty
-        if (searchResults.length === 0) {
-            res.status(404).json({ message: 'No results found for the query' });
-            return;
-        }
-
-        // Send the search results as a response
-        res.status(200).json(searchResults);
+      return  res.send({
+        searchResults
+      });
     } catch (error) {
-        console.error('Error searching posts:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error searching posts:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
+  }
 }
+
+export { SearchController };
